@@ -277,9 +277,9 @@ public:
         }
     }
 
-    void addLecture(const string& courseName) {
+    \\ void addLecture(const string& courseName) {
         
-        cout << "Added a lecture to course: " << courseName << "\n";
+       \\ cout << "Added a lecture to course: " << courseName << "\n";
     }
 
     void addQuiz(const string& courseName) {
