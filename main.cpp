@@ -265,7 +265,7 @@ public:
         }
         return (lowerName.find(lowerSearchTerm) != string::npos) || (to_string(CNIC).find(searchTerm) != string::npos);
     }
-    void viewEnrolledQuizzes() {
+    /*void viewEnrolledQuizzes() {
         if (enrolledQuizzes.empty()) {
             cout << "No quizzes enrolled."<< endl;
         }
@@ -275,17 +275,17 @@ public:
                 cout << quiz << endl;
             }
         }
-    }
+    }*/
 
-    \\ void addLecture(const string& courseName) {
+    /* void addLecture(const string& courseName) {
         
-       \\ cout << "Added a lecture to course: " << courseName << "\n";
+        cout << "Added a lecture to course: " << courseName << "\n";
     }
 
     void addQuiz(const string& courseName) {
 
        cout << "Added a quiz to course: " << courseName << "\n";
-    }
+    }*/
 
     void viewEnrolledCourses() {
         if (enrolledCourses.empty()) {
@@ -299,10 +299,10 @@ public:
         }
     }
 
-    void enrollInQuiz(const string& quizName) {
+    /*void enrollInQuiz(const string& quizName) {
         enrolledQuizzes.push_back(quizName);
         cout << "Enrolled in quiz: " << quizName << endl;
-    }
+    }*/
 
     void enrollInCourse(const string& courseName) {
         enrolledCourses.push_back(courseName);
@@ -478,12 +478,12 @@ public:
         }
         return false;
     }
-    void uploadLecture(const string& lectureName) {
+    /*void uploadLecture(const string& lectureName) {
         uploadedLectures.push_back(lectureName);
     }
     const vector<string>& getUploadedLectures() const {
         return uploadedLectures;
-    }
+    }*/
 };
 class CourseManager {
 private:
