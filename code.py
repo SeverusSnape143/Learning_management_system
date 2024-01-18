@@ -393,7 +393,78 @@ class LoginManager:
         self.current_user = None
         messagebox.showinfo("Success", "Logout successful!")
 
-# Tkinter GUI Implementation
+# # Tkinter GUI Implementation
+# class LMSApp:
+#     def __init__(self):
+#         self.signup_manager = SignUpManager()
+#         self.login_manager = LoginManager(self.signup_manager.get_users())
+#         self.root = tk.Tk()
+#         self.root.title("Learning Management System")
+
+#         self.username_label = tk.Label(self.root, text="Username:")
+#         self.username_entry = tk.Entry(self.root)
+
+#         self.password_label = tk.Label(self.root, text="Password:")
+#         self.password_entry = tk.Entry(self.root, show="*")
+
+#         self.login_button = tk.Button(self.root, text="Log In", command=self.login)
+#         self.signup_button = tk.Button(self.root, text="Sign Up", command=self.signup)
+
+#         self.username_label.pack()
+#         self.username_entry.pack()
+#         self.password_label.pack()
+#         self.password_entry.pack()
+#         self.login_button.pack()
+#         self.signup_button.pack()
+
+#     def login(self):
+#         username = self.username_entry.get()
+#         password = self.password_entry.get()
+#         if self.login_manager.login(username, password):
+#             self.show_user_menu()
+
+#     def signup(self):
+#         username = self.username_entry.get()
+#         password = self.password_entry.get()
+#         user_type = self.determine_user_type(username)
+
+#         if user_type:
+#             if self.signup_manager.register_user(username, password, user_type):
+#                 self.show_user_menu()
+
+#     def determine_user_type(self, username):
+#         if username.endswith(".std"):
+#             return UserType.STUDENT
+#         elif username.endswith(".ins"):
+#             return UserType.INSTRUCTOR
+#         elif username.endswith(".mng"):
+#             return UserType.MANAGER
+#         else:
+#             messagebox.showerror("Error", "Invalid username extension. Sign up failed.")
+#             return None
+
+#     def show_user_menu(self):
+#         user_type = self.login_manager.get_current_user_type()
+#         username = self.login_manager.get_current_username()
+
+#         messagebox.showinfo("Success", f"{user_type.name} {username} has logged in.")
+        
+#         if user_type == UserType.STUDENT:
+#             # Create and display the student menu
+#             student_menu = StudentMenu(self.root)
+#             student_menu.show_menu()
+
+#         elif user_type == UserType.INSTRUCTOR:
+#             # Create and display the instructor menu
+#             instructor_menu = InstructorMenu(self.root)
+#             instructor_menu.show_menu()
+
+#         elif user_type == UserType.MANAGER:
+#             # Create and display the manager menu
+#             manager_menu = ManagerMenu(self.root)
+#             manager_menu.show_menu()
+
+#         self.root.mainloop()
 class LMSApp:
     def __init__(self):
         self.signup_manager = SignUpManager()
@@ -401,21 +472,28 @@ class LMSApp:
         self.root = tk.Tk()
         self.root.title("Learning Management System")
 
-        self.username_label = tk.Label(self.root, text="Username:")
-        self.username_entry = tk.Entry(self.root)
+        # Configure the background color
+        self.root.config(bg="#3498db")  # Set the background color of the root window
 
-        self.password_label = tk.Label(self.root, text="Password:")
-        self.password_entry = tk.Entry(self.root, show="*")
+        # Username entry and label
+        self.username_label = tk.Label(self.root, text="Username:", bg="#3498db", fg="white")
+        self.username_entry = tk.Entry(self.root, bg="white", fg="black")
 
-        self.login_button = tk.Button(self.root, text="Log In", command=self.login)
-        self.signup_button = tk.Button(self.root, text="Sign Up", command=self.signup)
+        # Password entry and label
+        self.password_label = tk.Label(self.root, text="Password:", bg="#3498db", fg="white")
+        self.password_entry = tk.Entry(self.root, show="*", bg="white", fg="black")
 
-        self.username_label.pack()
-        self.username_entry.pack()
-        self.password_label.pack()
-        self.password_entry.pack()
-        self.login_button.pack()
-        self.signup_button.pack()
+        # Login and signup buttons
+        self.login_button = tk.Button(self.root, text="Log In", command=self.login, bg="#2980b9", fg="white")
+        self.signup_button = tk.Button(self.root, text="Sign Up", command=self.signup, bg="#27ae60", fg="white")
+
+        # Pack the widgets
+        self.username_label.pack(pady=10)
+        self.username_entry.pack(pady=10)
+        self.password_label.pack(pady=10)
+        self.password_entry.pack(pady=10)
+        self.login_button.pack(pady=10)
+        self.signup_button.pack(pady=10)
 
     def login(self):
         username = self.username_entry.get()
@@ -465,17 +543,19 @@ class LMSApp:
             manager_menu.show_menu()
 
         self.root.mainloop()
-
 class StudentMenu:
     def __init__(self, root):
         self.root = root
         self.student_menu = tk.Toplevel(root)
         self.student_menu.title("Student Menu")
 
+        # Initialize the Listbox with an empty list
+        self.enrolled_courses_listbox = tk.Listbox(self.student_menu)
         self.view_courses_button = tk.Button(self.student_menu, text="View Enrolled Courses", command=self.view_courses)
         self.view_lectures_button = tk.Button(self.student_menu, text="View Uploaded Lectures", command=self.view_lectures)
         self.logout_button = tk.Button(self.student_menu, text="Logout", command=self.logout)
 
+        self.enrolled_courses_listbox.pack()
         self.view_courses_button.pack()
         self.view_lectures_button.pack()
         self.logout_button.pack()
@@ -485,8 +565,22 @@ class StudentMenu:
         pass
 
     def view_lectures(self):
-        # Implement the logic to view uploaded lectures
-        pass
+        # Clear the Listbox before populating
+        self.enrolled_courses_listbox.delete(0, tk.END)
+
+        # Read lectures from the CSV file
+        lectures = []
+        with open('lectures_data.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                lectures.append({"title": row['title'], "url": row['url']})
+
+        # Populate the Listbox with lecture information
+        print("Lectures:")
+        print(lectures)
+        for lecture in lectures:
+            lecture_info = f"Title: {lecture['title']}, URL: {lecture['url']}"
+            self.enrolled_courses_listbox.insert(tk.END, lecture_info)
 
     def logout(self):
         self.student_menu.destroy()
@@ -494,45 +588,7 @@ class StudentMenu:
     def show_menu(self):
         self.root.mainloop()
 
-class InstructorMenu:
-    def __init__(self, root):
-        self.root = root
-        self.instructor_menu = tk.Toplevel(root)
-        self.instructor_menu.title("Instructor Menu")
 
-        self.view_quizzes_button = tk.Button(self.instructor_menu, text="View Enrolled Quizzes", command=self.view_quizzes)
-        self.add_lecture_button = tk.Button(self.instructor_menu, text="Add Lecture", command=self.add_lecture)
-        self.add_quiz_button = tk.Button(self.instructor_menu, text="Add Quiz", command=self.add_quiz)
-        self.view_courses_button = tk.Button(self.instructor_menu, text="View Enrolled Courses", command=self.view_courses)
-        self.view_lectures_button = tk.Button(self.instructor_menu, text="View Uploaded Lectures", command=self.view_lectures)
-        self.logout_button = tk.Button(self.instructor_menu, text="Logout", command=self.logout)
-
-        self.view_quizzes_button.pack()
-        self.add_lecture_button.pack()
-        self.add_quiz_button.pack()
-        self.view_courses_button.pack()
-        self.view_lectures_button.pack()
-        self.logout_button.pack()
-
-
-    def add_lecture(self):
-        # Implement the logic to add a lecture
-        pass
-
-
-    def view_courses(self):
-        # Implement the logic to view enrolled courses
-        pass
-
-    def view_lectures(self):
-        # Implement the logic to view uploaded lectures
-        pass
-
-    def logout(self):
-        self.instructor_menu.destroy()
-
-    def show_menu(self):
-        self.root.mainloop()
 
 class ManagerMenu:
     def __init__(self, root):
