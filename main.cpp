@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-
+#include <cstdlib>
 using namespace std;
 enum class UserType { STUDENT, INSTRUCTOR, MANAGER };
 template <typename T>
@@ -103,7 +103,7 @@ public:
         cout << "Login failed. Invalid username or password.\n";
         return false;
     }
-
+   
     UserType getCurrentUserType() const {
         return isLoggedIn() ? currentUser->type : UserType::STUDENT; 
     }
@@ -190,18 +190,26 @@ public:
         }
         return (lowerName.find(lowerSearchTerm) != string::npos) || (to_string(rollNumber).find(searchTerm) != string::npos);
     }
+    
+    
+
 };
 
+
 class Instructor {
-     
+public:
     struct Lecture {
         string courseName;
-        string lectureFileName; 
+        string lectureFileName;
+        string pdfLink;  // Added PDF link field
 
-        Lecture(const string& course, const string& filename) : courseName(course), lectureFileName(filename) {}
+        // Constructor with default values for parameters
+        Lecture(const string& course = "", const string& filename = "", const string& link = "")
+            : courseName(course), lectureFileName(filename), pdfLink(link) {}
     };
 
     vector<Lecture> uploadedLectures;
+
 public:
     string name;
     int CNIC;
@@ -265,7 +273,7 @@ public:
         }
         return (lowerName.find(lowerSearchTerm) != string::npos) || (to_string(CNIC).find(searchTerm) != string::npos);
     }
-    /*void viewEnrolledQuizzes() {
+    void viewEnrolledQuizzes() {
         if (enrolledQuizzes.empty()) {
             cout << "No quizzes enrolled."<< endl;
         }
@@ -275,17 +283,23 @@ public:
                 cout << quiz << endl;
             }
         }
-    }*/
-
-    /* void addLecture(const string& courseName) {
-        
-        cout << "Added a lecture to course: " << courseName << "\n";
     }
 
+    void addLecture(const string& courseName, const string& lectureFileName, const string& pdfLink) {
+        uploadedLectures.emplace_back(courseName, lectureFileName, pdfLink);
+
+        ofstream lectureFile("lectures_data.csv", ios::app);
+        lectureFile << courseName << "," << lectureFileName << "," << pdfLink << endl;
+
+        lectureFile.close();
+
+        cout << "Lecture added successfully for course: " << courseName << endl;
+    }
+      
     void addQuiz(const string& courseName) {
 
        cout << "Added a quiz to course: " << courseName << "\n";
-    }*/
+    }
 
     void viewEnrolledCourses() {
         if (enrolledCourses.empty()) {
@@ -299,10 +313,10 @@ public:
         }
     }
 
-    /*void enrollInQuiz(const string& quizName) {
+    void enrollInQuiz(const string& quizName) {
         enrolledQuizzes.push_back(quizName);
         cout << "Enrolled in quiz: " << quizName << endl;
-    }*/
+    }
 
     void enrollInCourse(const string& courseName) {
         enrolledCourses.push_back(courseName);
@@ -456,6 +470,54 @@ public:
             }
         }
     }
+    /* void StudentManager::viewLecture(const CourseManager& courseManager, const LoginManager& loginManager) const {
+    // Check if a student is logged in
+    if (!loginManager.isLoggedIn() || loginManager.getCurrentUserType() != UserType::STUDENT) {
+        cout << "Error: You need to log in as a student to view lectures.\n";
+        return;
+    }
+
+    string courseName;
+    cout << "Enter the course name to view lectures: ";
+    cin.ignore();
+    getline(cin, courseName);
+
+    const Course* course = courseManager.findCourse(courseName);
+
+    if (course) {
+        const vector<string>& lectures = course->getUploadedLectures();
+
+        if (!lectures.empty()) {
+            cout << "Available Lectures for " << courseName << ":\n";
+            for (const string& lecture : lectures) {
+                cout << lecture << "\n";
+            }
+
+            string selectedFileName;
+            cout << "Enter the lecture file name you want to view: ";
+            cin >> selectedFileName;
+
+            bool fileExists = false;
+            for (const string& lecture : lectures) {
+                if (lecture == selectedFileName) {
+                    fileExists = true;
+                    break;
+                }
+            }
+
+            if (fileExists) {
+                string openCommand = "start " + selectedFileName;  // For Windows
+                system(openCommand.c_str());
+            } else {
+                cout << "Error: Selected lecture file does not exist.\n";
+            }
+        } else {
+            cout << "Error: No lectures uploaded for this course yet.\n";
+        }
+    } else {
+        cout << "Error: Course not found.\n";
+    }
+} */
 };
 
 
@@ -478,12 +540,12 @@ public:
         }
         return false;
     }
-    /*void uploadLecture(const string& lectureName) {
+    void uploadLecture(const string& lectureName) {
         uploadedLectures.push_back(lectureName);
     }
     const vector<string>& getUploadedLectures() const {
         return uploadedLectures;
-    }*/
+    }
 };
 class CourseManager {
 private:
@@ -569,6 +631,14 @@ public:
 
     void enrollStudentInCourse(CourseManager& courseManager, int studentId, const string& courseName) {
         courseManager.enrollStudentInCourse(studentId, courseName);
+    }
+    const Course* findCourse(const string& courseName) const {
+        for (const Course& course : courses) {
+            if (course.courseName == courseName) {
+                return &course;
+            }
+        }
+        return nullptr;
     }
 };
 istream& operator>>(istream& is, Student& student) {
@@ -708,38 +778,8 @@ int main() {
                         if (choice == 1) {
                             courseManager.displayAllCourses();
                         }
+                        
                         else if (choice == 2) {
-                            string courseName;
-                            cout << "Enter course name to view lectures: ";
-                            cin.ignore(); 
-                            getline(cin, courseName);
-
-                            
-                            bool courseFound = false;
-                            for (const Course& course : courseManager.getCourses()) {
-                                if (course.courseName == courseName) {
-                                    courseFound = true;
-                                    
-                                    
-                                    vector<string> lectures = course.getUploadedLectures();
-
-                                    if (lectures.empty()) {
-                                        cout << "No lectures uploaded for this course.\n";
-                                    }
-                                    else {
-                                        cout << "Uploaded Lectures for " << courseName << ":\n";
-                                        for (const string& lecture : lectures) {
-                                            cout << lecture << "\n";
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-                            if (!courseFound) {
-                                cout << "Course not found.\n";
-                            }
-                        }
-                        else if (choice == 3) {
                             loginManager.logout();
                             break;
                         }
